@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.Thiyasri | Spider-Verse Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --radioactive-red: #ff1e3c;
+            --web-blue: #00e1ff;
+            --cyber-cyan: #00ffcc;
+            --bg-dark: #060608;
+            --pad-bg: rgba(12, 12, 18, 0.78);
+            --text-main: #f1f1f5;
+            --text-muted: #8e8e9a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system_ui, sans-serif;
+            font-size: 0.78rem;
+            overflow-x: hidden;
+        }
+
+        .comic-backdrop {
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(rgba(6,6,8,0.92) 0%, rgba(12,12,18,0.96) 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 2px, transparent 2px, transparent 5px);
+            z-index: -2;
+        }
+
+        #web-matrix-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #spidey-cursor {
+            width: 7px;
+            height: 7px;
+            background: var(--radioactive-red);
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--radioactive-red);
+        }
+        #spidey-cursor-ring {
+            width: 22px;
+            height: 22px;
+            border: 1px dashed var(--web-blue);
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99998;
+            transform: translate(-50%, -50%);
+        }
+
+        /* New Fast User-Friendly Portal */
+        #portal-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(20,20,30,0.85) 0%, rgba(6,6,8,0.98) 100%);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .portal-card {
+            background: rgba(12, 12, 18, 0.9);
+            border: 1.5px solid var(--radioactive-red);
+            box-shadow: 0 0 30px rgba(255, 30, 60, 0.3);
+            padding: 42px 38px;
+            border-radius: 14px;
+            text-align: center;
+            max-width: 380px;
+            width: 92%;
+        }
+        .portal-card i {
+            font-size: 3.2rem;
+            color: var(--radioactive-red);
+            margin-bottom: 14px;
+            animation: spiderPulse 2.2s infinite alternate ease-in-out;
+        }
+        #portal-screen h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.75rem;
+            letter-spacing: 5px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        #portal-screen p {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 28px;
+        }
+        .portal-btn {
+            width: 100%;
+            padding: 13px;
+            font-size: 0.82rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            background: var(--radioactive-red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            letter-spacing: 2.5px;
+            box-shadow: 0 4px 18px rgba(255, 30, 60, 0.45);
+            transition: all 0.2s ease;
+        }
+        .portal-btn:hover {
+            background: #fff;
+            color: #060608;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255,255,255,0.3);
+        }
+
+        #main-dashboard {
+            display: none;
+            max-width: 1080px;
+            margin: 32px auto;
+            padding: 0 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .letter-pad {
+            background: var(--pad-bg);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 32px 34px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 26px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+        .spidey-quote {
+            font-size: 0.72rem;
+            font-style: italic;
+            color: var(--cyber-cyan);
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+        }
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.15rem;
+            font-weight: 900;
+            letter-spacing: 3.5px;
+            background: linear-gradient(90deg, #fff, var(--radioactive-red), var(--web-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        .header-tagline {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+        }
+
+        .pad-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
+            gap: 17px;
+        }
+
+        .pad-card {
+            background: rgba(18, 18, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 19px 20px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .pad-card:hover {
+            border-color: var(--web-blue);
+            box-shadow: 0 0 0 1px rgba(0, 225, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        .pad-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            margin-bottom: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .pad-card h2 i { color: var(--radioactive-red); }
+
+        .svg-mask-icon {
+            display: block;
+            margin: 0 auto 13px;
+            width: 36px;
+            height: 36px;
+            fill: var(--radioactive-red);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4.5px 0;
+            font-size: 0.76rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .metric-key { color: var(--text-muted); }
+        .metric-value { font-weight: 600; color: #fff; }
+
+        .pulsing-badge {
+            display: inline-block;
+            margin-top: 13px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.62rem;
+            color: var(--cyber-cyan);
+            border: 1px solid var(--cyber-cyan);
+            padding: 3px 9px;
+            border-radius: 3px;
+            animation: microPulse 1.6s infinite alternate;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.73rem;
+        }
+        th, td {
+            padding: 5px 3px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        th { color: var(--text-muted); font-weight: 500; }
+        td { color: var(--web-blue); font-weight: 700; }
+
+        .doc-log {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 9px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 5px;
+            margin-bottom: 6px;
+            border-left: 2.5px solid var(--web-blue);
+        }
+
+        .scroll-log-box {
+            max-height: 115px;
+            overflow-y: auto;
+            font-size: 0.73rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+        }
+
+        .arcade-container {
+            background: #030305;
+            border: 1px dashed var(--radioactive-red);
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        #city-swing-canvas {
+            width: 100%;
+            height: 152px;
+            background: #07070b;
+            display: block;
+            border-radius: 4px;
+        }
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 7px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.68rem;
+        }
+        .arcade-btn {
+            background: transparent;
+            border: 1px solid var(--cyber-cyan);
+            color: var(--cyber-cyan);
+            padding: 4px 11px;
+            font-size: 0.65rem;
+            border-radius: 3px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .arcade-btn:hover {
+            background: var(--cyber-cyan);
+            color: #000;
+        }
+
+        .emergency-pad-card {
+            border: 1px solid var(--radioactive-red) !important;
+        }
+        .secure-link {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 11px;
+            background: rgba(255, 30, 60, 0.05);
+            border-radius: 5px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 30, 60, 0.12);
+            transition: all 0.2s;
+        }
+        .secure-link:hover {
+            background: rgba(255, 30, 60, 0.14);
+            border-color: var(--radioactive-red);
+        }
+
+        @keyframes microPulse {
+            0% { opacity: 0.65; box-shadow: 0 0 3px var(--cyber-cyan); }
+            100% { opacity: 1; box-shadow: 0 0 12px var(--cyber-cyan); }
+        }
+        @keyframes spiderPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 3px var(--radioactive-red)); }
+            100% { transform: scale(1.12); filter: drop-shadow(0 0 14px var(--radioactive-red)); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div id="spidey-cursor"></div>
+    <div id="spidey-cursor-ring"></div>
+
+    <div class="comic-backdrop"></div>
+    <canvas id="web-matrix-canvas"></canvas>
+
+    <!-- New Fast Portal -->
+    <div id="portal-screen">
+        <div class="portal-card">
+            <i class="fa-solid fa-spider"></i>
+            <h1>SPIDER-VERSE</h1>
+            <p>SYSTEM TERMINAL v2.0 • QUICK ACCESS</p>
+            <button class="portal-btn" onclick="triggerWebUniverseEntry()">LEAP OF FAITH</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-dashboard">
+        <div class="letter-pad">
+
+            <header onclick="speakSystemLog('Accessing identity index of A.Thiyasri. Spider-Verse deployment node initialized.')">
+                <div class="spidey-quote">“With great power comes great responsibility.”</div>
+                <h1>A.Thiyasri</h1>
+                <div class="header-tagline">Tech Enthusiast • Game Lover • Developer</div>
+            </header>
+
+            <div class="pad-grid">
+
+                <!-- Profile -->
+                <div class="pad-card" onclick="speakSystemLog('Suit specifications configuration file.')">
+                    <h2><i class="fa-solid fa-spider"></i> Suit Specs</h2>
+                    <svg class="svg-mask-icon" viewBox="0 0 24 24">
+                        <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10,10-4.48,10-10S17.52,2,12,2z M12,19.5c-2.45,0-4.62-1.24-5.89-3.12C7.38,15.15,9.56,14,12,14s4.62,1.15,5.89,2.38C16.62,18.26,14.45,19.5,12,19.5z M12,12c-1.66,0-3-1.34-3-3s1.34-3,3-3s3,1.34,3,3S13.66,12,12,12z"/>
+                    </svg>
+                    <div class="metric-row"><span class="metric-key">Age:</span> <span class="metric-value">16</span></div>
+                    <div class="metric-row"><span class="metric-key">DOB:</span> <span class="metric-value">02/07/2009</span></div>
+                    <div class="metric-row"><span class="metric-key">Fav Color:</span> <span class="metric-value">Black 🖤</span></div>
+                    <div class="metric-row"><span class="metric-key">Fav Sport:</span> <span class="metric-value">Kabaddi 🤼</span></div>
+                    <div class="metric-row"><span class="metric-key">Fav Game:</span> <span class="metric-value">Free Fire 🎮</span></div>
+                    <div class="pulsing-badge">JOINING ANDROID WING SOON</div>
+                </div>
+
+                <!-- Education -->
+                <div class="pad-card" onclick="speakSystemLog('Academic logs. Training modules complete.')">
+                    <h2><i class="fa-solid fa-graduation-cap"></i> The Academy Hub</h2>
+                    <div class="metric-row"><span class="metric-key">Course:</span> <span class="metric-value" style="color:var(--web-blue);">BSc IT</span></div>
+                    <div class="metric-row"><span class="metric-key">Institution:</span> <span class="metric-value" style="font-size:0.68rem;">RD National College of Arts &amp; Science</span></div>
+                    <table>
+                        <thead><tr><th>Standard</th><th>Metrics</th></tr></thead>
+                        <tbody>
+                            <tr><td>10th Matrix</td><td>463 Marks</td></tr>
+                            <tr><td>11th Matrix</td><td>512 Marks</td></tr>
+                            <tr><td>12th Matrix</td><td>558 Marks</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Accolades -->
+                <div class="pad-card" onclick="speakSystemLog('System accolades and certifications recorded.')">
+                    <h2><i class="fa-solid fa-trophy"></i> Accolades System</h2>
+                    <div class="doc-log">
+                        <i class="fa-solid fa-medal" style="color:#cd7f32"></i>
+                        <div><strong>Bronze Medal</strong><br><span style="font-size:0.64rem;color:var(--text-muted)">Most Promising Developer</span></div>
+                    </div>
+                    <div class="doc-log">
+                        <i class="fa-solid fa-scroll" style="color:var(--cyber-cyan)"></i>
+                        <div><strong>Letter Pad Recognition</strong><br><span style="font-size:0.64rem;color:var(--text-muted)">System Integrity Award</span></div>
+                    </div>
+                </div>
+
+                <!-- Family -->
+                <div class="pad-card" onclick="speakSystemLog('Primary network contact database.')">
+                    <h2><i class="fa-solid fa-heart"></i> The People I Love</h2>
+                    <div class="metric-row"><span class="metric-key">Father:</span> <span class="metric-value">Arumugan</span></div>
+                    <div class="metric-row"><span class="metric-key">Mother:</span> <span class="metric-value">Anithamalar</span></div>
+                    <div class="metric-row"><span class="metric-key">Sister:</span> <span class="metric-value">Moushitha</span></div>
+                </div>
+
+                <!-- Origin Story -->
+                <div class="pad-card" onclick="speakSystemLog('Displaying chronicle origin file.')">
+                    <h2><i class="fa-solid fa-book-open"></i> 🕸️ Origin Story</h2>
+                    <div class="scroll-log-box">
+                        Peter Parker, an ordinary high school student, was transformed forever during a scientific demonstration. A stray radioactive spider bit his hand, mutating his cellular biology. He unlocked incredible superhuman strength, speed, wall-crawling ability, and an omnipresent extra-sensory precognitive alerting node known as his Spider-Sense.
+                    </div>
+                </div>
+
+                <!-- City Swing Arcade -->
+                <div class="pad-card" id="arcade-pad-card">
+                    <h2><i class="fa-solid fa-gamepad"></i> City Swing Arcade</h2>
+                    <div class="arcade-container">
+                        <canvas id="city-swing-canvas"></canvas>
+                        <div class="game-controls">
+                            <div>Score: <span id="game-score">0000</span></div>
+                            <button class="arcade-btn" id="game-btn-node">START SWING</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spider-Signal -->
+                <div class="pad-card emergency-pad-card" onclick="speakSystemLog('Emergency direct routing signal module activated.')">
+                    <h2 style="color:var(--radioactive-red);"><i class="fa-solid fa-triangle-exclamation"></i> Spider-Signal</h2>
+                    <a href="https://instagram.com/thxyz_sr_" target="_blank" class="secure-link" onclick="event.stopPropagation();">
+                        <i class="fa-brands fa-instagram"></i>
+                        <div><span style="color:var(--text-muted);font-size:0.64rem;display:block;">Instagram Handle</span><strong>@thxyz_sr_</strong></div>
+                    </a>
+                    <a href="mailto:thiyasri6426@gmail.com" class="secure-link" onclick="event.stopPropagation();">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div><span style="color:var(--text-muted);font-size:0.64rem;display:block;">Email Server</span><strong>thiyasri6426@gmail.com</strong></div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function speakSystemLog(msg) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(msg);
+                u.rate = 0.95;
+                u.pitch = 1.05;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        function triggerWebUniverseEntry() {
+            speakSystemLog("Welcome to Web Universe 🕸️");
+            const portal = document.getElementById('portal-screen');
+            const main = document.getElementById('main-dashboard');
+            
+            portal.style.transitionDuration = '280ms';
+            portal.style.opacity = '0';
+            portal.style.transform = 'scale(1.03)';
+            
+            setTimeout(() => {
+                portal.style.display = 'none';
+                main.style.display = 'block';
+                setTimeout(() => {
+                    main.style.transitionDuration = '420ms';
+                    main.style.opacity = '1';
+                }, 20);
+                initWebBackground();
+                initCustomCursor();
+                initSwingArcade();
+            }, 280);
+        }
+
+        function initCustomCursor() {
+            const dot = document.getElementById('spidey-cursor');
+            const ring = document.getElementById('spidey-cursor-ring');
+            document.addEventListener('mousemove', e => {
+                dot.style.left = `${e.clientX}px`;
+                dot.style.top = `${e.clientY}px`;
+                ring.style.left = `${e.clientX}px`;
+                ring.style.top = `${e.clientY}px`;
+            });
+        }
+
+        function initWebBackground() {
+            const canvas = document.getElementById('web-matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            let nodes = [];
+            let mouse = {x:null, y:null};
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for (let i = 0; i < 48; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random()-0.5)*0.65,
+                    vy: (Math.random()-0.5)*0.65
+                });
+            }
+
+            document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+            document.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < nodes.length; i++) {
+                    let n = nodes[i];
+                    n.x += n.vx; n.y += n.vy;
+                    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                    for (let j = i+1; j < nodes.length; j++) {
+                        let n2 = nodes[j];
+                        let d = Math.hypot(n.x-n2.x, n.y-n2.y);
+                        if (d < 102) {
+                            ctx.beginPath();
+                            ctx.moveTo(n.x, n.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            ctx.strokeStyle = `rgba(0,225,255,${0.11 - d/102*0.09})`;
+                            ctx.lineWidth = 0.55;
+                            ctx.stroke();
+                        }
+                    }
+
+                    if (mouse.x) {
+                        let d = Math.hypot(n.x - mouse.x, n.y - mouse.y);
+                        if (d < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(n.x, n.y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.strokeStyle = `rgba(255,30,60,${0.2 - d/150*0.18})`;
+                            ctx.lineWidth = 0.75;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // ==================== IMPROVED SWING ARCADE ====================
+        function initSwingArcade() {
+            const canvas = document.getElementById('city-swing-canvas');
+            const ctx = canvas.getContext('2d');
+            const btn = document.getElementById('game-btn-node');
+            const scoreEl = document.getElementById('game-score');
+            const card = document.getElementById('arcade-pad-card');
+
+            canvas.width = 520;
+            canvas.height = 152;
+
+            let running = false;
+            let score = 0;
+            let raf;
+
+            let player = { x: 70, y: 82, vx: 1.55, vy: 0, r: 7 };
+            let web = null;
+            let beams = [];
+            let obstacles = [];
+
+            function reset() {
+                player.x = 70; player.y = 82; player.vx = 1.55; player.vy = 0;
+                web = null; score = 0; scoreEl.textContent = '0000';
+                beams = []; obstacles = [];
+                for (let i=0; i<7; i++) beams.push({x: 130 + i*70, y: 20 + Math.sin(i)*16});
+                for (let i=0; i<4; i++) obstacles.push({x: 240 + i*92, y: 92 + Math.random()*38, w:13, h:17});
+            }
+
+            function shoot() {
+                if (!running) return;
+                let closest = null, minD = 999;
+                beams.forEach(b => {
+                    if (b.x > player.x - 12) {
+                        let d = Math.hypot(b.x - player.x, b.y - player.y);
+                        if (d < minD && d < 138) { minD = d; closest = b; }
+                    }
+                });
+                if (closest) {
+                    web = {x: closest.x, y: closest.y, len: minD};
+                    card.style.borderColor = 'var(--cyber-cyan)';
+                    playSound();
+                }
+            }
+
+            function release() {
+                if (web) {
+                    web = null;
+                    card.style.borderColor = 'var(--radioactive-red)';
+                    player.vx = Math.max(player.vx, 2.0);
+                }
+            }
+
+            function playSound() {
+                try {
+                    const a = new (window.AudioContext || window.webkitAudioContext)();
+                    const o = a.createOscillator(); const g = a.createGain();
+                    o.type = 'sawtooth'; o.frequency.value = 870;
+                    g.gain.value = 0.055; o.connect(g); g.connect(a.destination);
+                    o.start();
+                    o.frequency.exponentialRampToValueAtTime(150, a.currentTime + 0.24);
+                    g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.28);
+                    setTimeout(() => o.stop(), 300);
+                } catch(e){}
+            }
+
+            function update() {
+                if (!running) return;
+
+                beams.forEach(b => b.x -= 1.85);
+                obstacles.forEach(o => o.x -= 2.0);
+
+                if (beams[0] && beams[0].x < -25) {
+                    beams.shift();
+                    beams.push({x: beams[beams.length-1].x + 70, y: 18 + Math.random()*20});
+                }
+                if (obstacles[0] && obstacles[0].x < -15) {
+                    obstacles.shift();
+                    obstacles.push({x: obstacles[obstacles.length-1].x + 105, y: 88 + Math.random()*42, w:13, h:17});
+                }
+
+                if (web) {
+                    const dx = web.x - player.x;
+                    const dy = web.y - player.y;
+                    const dist = Math.hypot(dx, dy) || 1;
+                    const f = (dist - web.len) * 0.085;
+                    player.vx += (dx/dist) * f;
+                    player.vy += (dy/dist) * f * 0.85;
+                } else {
+                    player.vy += 0.31;
+                }
+
+                player.x += player.vx;
+                player.y += player.vy;
+
+                if (player.y > canvas.height - 11) { player.y = canvas.height - 11; player.vy = -1.6; }
+                if (player.y < 11) player.y = 11;
+
+                for (let o of obstacles) {
+                    if (Math.abs(o.x - player.x) < 17 && Math.abs(o.y - player.y) < 19) {
+                        endGame(); return;
+                    }
+                }
+
+                score += 1;
+                if (score % 7 === 0) scoreEl.textContent = String(score).padStart(4,'0');
+
+                if (score % 160 === 0) flashBorder();
+            }
+
+            function draw() {
+                ctx.fillStyle = '#07070b';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.strokeStyle = '#00e1ff';
+                ctx.lineWidth = 2.8;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = '#00e1ff';
+                beams.forEach(b => {
+                    ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x+36, b.y); ctx.stroke();
+                });
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#ff1e3c';
+                obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.w, o.h));
+
+                if (web) {
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1.4;
+                    ctx.beginPath();
+                    ctx.moveTo(player.x, player.y);
+                    ctx.lineTo(web.x, web.y);
+                    ctx.stroke();
+                }
+
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ff1e3c';
+                ctx.fillStyle = '#111';
+                ctx.strokeStyle = '#ff1e3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
+                ctx.fill(); ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#ff1e3c';
+                ctx.beginPath();
+                ctx.arc(player.x+2.5, player.y-2, 1.3, 0, Math.PI*2);
+                ctx.arc(player.x-1.5, player.y-2, 1.3, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            function loop() {
+                if (!running) return;
+                update(); draw();
+                raf = requestAnimationFrame(loop);
+            }
+
+            function start() {
+                running = true;
+                reset();
+                btn.textContent = 'RESTART';
+                speakSystemLog('City Swing simulation engaged.');
+                if (raf) cancelAnimationFrame(raf);
+                loop();
+            }
+
+            function endGame() {
+                running = false;
+                btn.textContent = 'TRY AGAIN';
+                ctx.fillStyle = 'rgba(255,30,60,0.22)';
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                speakSystemLog(`Run ended. Final score ${score}.`);
+            }
+
+            function flashBorder() {
+                card.style.transitionDuration = '50ms';
+                card.style.boxShadow = '0 0 0 3px rgba(0,225,255,0.55)';
+                setTimeout(() => {
+                    if (card) { card.style.boxShadow = ''; card.style.transitionDuration = '280ms'; }
+                }, 200);
+            }
+
+            canvas.addEventListener('mousedown', e => {e.stopPropagation(); shoot();});
+            canvas.addEventListener('mouseup', e => {e.stopPropagation(); release();});
+            canvas.addEventListener('touchstart', e => {e.preventDefault(); shoot();});
+            canvas.addEventListener('touchend', e => {e.preventDefault(); release();});
+
+            btn.addEventListener('click', e => { e.stopPropagation(); start(); });
+
+            // Initial placeholder
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#555';
+            ctx.font = '10px Orbitron';
+            ctx.fillText('CLICK START SWING', 26, 80);
+        }
+
+        console.log('%c[Spider-Verse] Final v2 with quick portal ready.', 'color:#666');
+    </script>
+</body>
+</html>
